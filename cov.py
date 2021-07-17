@@ -11,10 +11,9 @@ totalFrame = algorithms.transformVectors(cornvectors)
 variables =[]
 names=[]
 for col in totalFrame.columns:
-    if col not in ['yield']:
-        col=totalFrame.loc[:,col]
-        variables.append(col)
-        names.append(col.name)
+    col=totalFrame.loc[:,col]
+    variables.append(col)
+    names.append(col.name)
 
 def complex_algorithms_list(x):
     data = []

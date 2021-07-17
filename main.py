@@ -92,11 +92,27 @@ dataset = prepareData()
 print('Starting analysis for '+str(dataset)+'...')
 X,y,totalFrame = dataset
 #algorithms.runAnalysis(X,y)
+regressor = lm.OrthogonalMatchingPursuit(fit_intercept= True, normalize= True)
+regressor.fit(X,y)
+print(algorithms.getImportance(X, y, regressor).sort_values(ascending=False))
+
 regressor = nei.KNeighborsRegressor(algorithm='ball_tree', leaf_size=10, n_neighbors=9, p=1, weights='distance')
+regressor.fit(X,y)
+print(algorithms.getImportance(X, y, regressor).sort_values(ascending=False))
+
+regressor = lm.BayesianRidge( alpha_1 = 1e-05,  alpha_2 = 1e-07,  fit_intercept = True,  lambda_1 = 1e-07,  lambda_2 = 1e-05,  normalize = True)
 regressor.fit(X,y)
 print(algorithms.getImportance(X, y, regressor).sort_values(ascending=False))
 print()
 print()
+regressor2 = lm.OrthogonalMatchingPursuit(fit_intercept= True, normalize= True)
+regressor2.fit(X,y)
+print(algorithms.getCoefs(X,regressor2).sort_values(ascending=False))
+
 regressor2 = lm.LassoLars(alpha=0.01, eps=1e-11, fit_intercept=True, max_iter=100000, normalize=False, random_state=1)
+regressor2.fit(X,y)
+print(algorithms.getCoefs(X,regressor2).sort_values(ascending=False))
+
+regressor2 = lm.BayesianRidge( alpha_1 = 1e-05,  alpha_2 = 1e-07,  fit_intercept = True,  lambda_1 = 1e-07,  lambda_2 = 1e-05,  normalize = True)
 regressor2.fit(X,y)
 print(algorithms.getCoefs(X,regressor2).sort_values(ascending=False))
