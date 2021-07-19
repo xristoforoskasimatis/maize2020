@@ -13,7 +13,7 @@ from sklearn.model_selection import GridSearchCV
 from sklearn.model_selection import cross_val_score
 from sklearn.inspection import permutation_importance
 from sklearn import metrics
-   
+
 def hyperOptimizationTest(regressor,regressorLabel,X,y,parameter_space,scoring):
     if isinstance(scoring, list):
         clf = GridSearchCV(regressor(), parameter_space, n_jobs=-1, cv=10,verbose=1,scoring=scoring,refit=scoring[0])
@@ -222,6 +222,11 @@ def runAnalysis(X,y):
     
 def getCoefs(X,regressor):
     print('Getting coefs for regressor '+str(type(regressor).__name__)+'...\n')
+    X_train=X
+    x = X_train.values #returns a numpy array
+    min_max_scaler = preprocessing.MinMaxScaler()
+    x_scaled = min_max_scaler.fit_transform(x)
+    X = pd.DataFrame(x_scaled,columns=X_train.columns)
     coef = pd.Series(regressor.coef_, index = X.columns)
     print(str(type(regressor).__name__)+ " picked " + str(sum(coef != 0)) + " variables and eliminated the other " +  str(sum(coef == 0)) + " variables")
     imp_coef = coef.sort_values()
@@ -237,8 +242,14 @@ def getCoefs(X,regressor):
 
 def getImportance(X, y, regressor):
     print('Getting feature importance for regressor '+str(type(regressor).__name__)+'...\n')
+    X_train=X
+    x = X_train.values #returns a numpy array
+    min_max_scaler = preprocessing.MinMaxScaler()
+    x_scaled = min_max_scaler.fit_transform(x)
+    X = pd.DataFrame(x_scaled,columns=X_train.columns)
     results = permutation_importance(regressor, X, y, scoring='r2')
-    importance = pd.Series(results.importances_mean, index = X.columns)
+    importance = preprocessing.normalize(X, norm='max')
+    importance=pd.Series(results.importances_mean, index = X.columns)
     imp_coef = importance.sort_values()
     rcParams['figure.figsize'] = (8.0, 10.0)
     imp_coef.plot(kind = "barh")
