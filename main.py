@@ -15,7 +15,7 @@ from sklearn import metrics
 
 
 
-def CornParser(filename="SweerCorn2020.csv"):
+def CornParser(filename="quality_dataset_1.csv"):
     results = []
     try:
         with open(filename) as in_file:
@@ -58,7 +58,7 @@ def CornParser(filename="SweerCorn2020.csv"):
     
 
 
-def prepareData(excludedCols = []):
+def prepareData(colname="Fiber",excludedCols = ['Texture',"Proteins",'yield']):
     corn_Projection = {'$project':{'_id':0}}
     for excluded in excludedCols:
         corn_Projection['$project'][excluded] = 0    
@@ -66,15 +66,15 @@ def prepareData(excludedCols = []):
     #Create data frame
     totalFrame = algorithms.transformVectors(corn_vect)    
     #Clean NaN values and create label and features sets
-    y = totalFrame.loc[:, 'yield']
-    X = totalFrame.loc[:, sorted([col for col in totalFrame.columns if col not in ['yield']])]
+    y = totalFrame.loc[:, colname]
+    X = totalFrame.loc[:, sorted([col for col in totalFrame.columns if col not in colname])]
     imp = SimpleImputer(missing_values=np.nan, strategy='mean')
     imp.fit(X)
     trainX = imp.transform(X)
     trainXDataframe = pd.DataFrame(trainX)
     trainXDataframe.columns = X.columns
     trainXDataframe.index=X.index
-    X = trainXDataframe.loc[:, sorted([col for col in trainXDataframe.columns if col not in ['yield']])]
+    X = trainXDataframe.loc[:, sorted([col for col in trainXDataframe.columns if col not in colname])]
     print('totalFeatures',X.shape)
     print()
     print(totalFrame.head)
@@ -82,37 +82,35 @@ def prepareData(excludedCols = []):
     print(X.head)
     print()
     print(y.head)
-    return (X,y,totalFrame)
-
-
+    return (colname,X,y,totalFrame)
 
 
 
 dataset = prepareData()
 print('Starting analysis for '+str(dataset)+'...')
-X,y,totalFrame = dataset
+colname,X,y,totalFrame = dataset
 #algorithms.runAnalysis(X,y)
 regressor = lm.OrthogonalMatchingPursuit(fit_intercept= True, normalize= True)
 regressor.fit(X,y)
-print(algorithms.getImportance(X, y, regressor).sort_values(ascending=False))
+print(algorithms.getImportance(colname,X, y, regressor).sort_values(ascending=False))
 
 regressor = nei.KNeighborsRegressor(algorithm='ball_tree', leaf_size=10, n_neighbors=9, p=1, weights='distance')
 regressor.fit(X,y)
-print(algorithms.getImportance(X, y, regressor).sort_values(ascending=False))
+print(algorithms.getImportance(colname,X, y, regressor).sort_values(ascending=False))
 
 regressor = lm.BayesianRidge( alpha_1 = 1e-05,  alpha_2 = 1e-07,  fit_intercept = True,  lambda_1 = 1e-07,  lambda_2 = 1e-05,  normalize = True)
 regressor.fit(X,y)
-print(algorithms.getImportance(X, y, regressor).sort_values(ascending=False))
+print(algorithms.getImportance(colname,X, y, regressor).sort_values(ascending=False))
 print()
 print()
 regressor2 = lm.OrthogonalMatchingPursuit(fit_intercept= True, normalize= True)
 regressor2.fit(X,y)
-print(algorithms.getCoefs(X,regressor2).sort_values(ascending=False))
+print(algorithms.getCoefs(colname,X,regressor2).sort_values(ascending=False))
 
 regressor2 = lm.LassoLars(alpha=0.01, eps=1e-11, fit_intercept=True, max_iter=100000, normalize=False, random_state=1)
 regressor2.fit(X,y)
-print(algorithms.getCoefs(X,regressor2).sort_values(ascending=False))
+print(algorithms.getCoefs(colname, X,regressor2).sort_values(ascending=False))
 
 regressor2 = lm.BayesianRidge( alpha_1 = 1e-05,  alpha_2 = 1e-07,  fit_intercept = True,  lambda_1 = 1e-07,  lambda_2 = 1e-05,  normalize = True)
 regressor2.fit(X,y)
-print(algorithms.getCoefs(X,regressor2).sort_values(ascending=False))
+print(algorithms.getCoefs(colname,X,regressor2).sort_values(ascending=False))

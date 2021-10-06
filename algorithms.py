@@ -220,7 +220,7 @@ def runAnalysis(X,y):
     print('Testing Done.')
     print()
     
-def getCoefs(X,regressor):
+def getCoefs(cn,X,regressor):
     print('Getting coefs for regressor '+str(type(regressor).__name__)+'...\n')
     X_train=X
     x = X_train.values #returns a numpy array
@@ -232,15 +232,16 @@ def getCoefs(X,regressor):
     imp_coef = coef.sort_values()
     rcParams['figure.figsize'] = (8.0, 10.0)
     imp_coef.plot(kind = "barh")
-    plt.title("Feature coefficiency using "+str(type(regressor).__name__)+" Model")
+    plt.title("Feature coefficiency for "+str(cn)+" using "+str(type(regressor).__name__)+" Model")
+    name=str(cn)+"_"+str(type(regressor).__name__)
     fig = plt.gcf()
     fig.set_size_inches(20,10)
-    fig.savefig('./figs/'+str(regressor)+".jpg",dpi=200)
+    fig.savefig('./figs/'+name+".jpg",dpi=200)
     plt.show()
     plt.clf()
     return coef
 
-def getImportance(X, y, regressor):
+def getImportance(cn,X, y, regressor):
     print('Getting feature importance for regressor '+str(type(regressor).__name__)+'...\n')
     X_train=X
     x = X_train.values #returns a numpy array
@@ -253,10 +254,11 @@ def getImportance(X, y, regressor):
     imp_coef = importance.sort_values()
     rcParams['figure.figsize'] = (8.0, 10.0)
     imp_coef.plot(kind = "barh")
-    plt.title("Feature importance using "+str(type(regressor).__name__)+" Model")
+    plt.title("Feature importance for "+str(cn)+" using "+str(type(regressor).__name__)+" Model")
     fig = plt.gcf()
     fig.set_size_inches(20,10)
-    fig.savefig('./figs/'+str(regressor)+"fi.jpg",dpi=200)
+    name=str(cn)+"_"+str(type(regressor).__name__)
+    fig.savefig('./figs/'+name+"fi.jpg",dpi=200)
     plt.show()
     plt.clf()
     return importance
